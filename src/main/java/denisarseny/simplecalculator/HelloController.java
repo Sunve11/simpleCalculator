@@ -1,9 +1,19 @@
 package denisarseny.simplecalculator;
 
+import denisarseny.simplecalculator.history.HistoryEntry;
+import denisarseny.simplecalculator.history.HistoryRepository;
+import denisarseny.simplecalculator.history.HistoryWindowFactory;
+import denisarseny.simplecalculator.history.JsonHistoryRepository;
+import denisarseny.simplecalculator.history.TextAreaHistoryWindowFactory;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Stack;
+import denisarseny.simplecalculator.factory.OperationFactoryResolver;
 
 public class HelloController {
 
@@ -16,8 +26,13 @@ public class HelloController {
     private Button buttonPlus, buttonMinus, buttonMultiply, buttonDivide, buttonEquals, buttonClear;
     @FXML
     private Button buttonDot, buttonSign, buttonOpenBracket, buttonCloseBracket;
+    @FXML
+    private Button buttonShowHistory, buttonClearHistory;
 
     private boolean startNewExpression = true; // флаг для начала нового выражения после равно
+    private final HistoryRepository historyRepository = new JsonHistoryRepository();
+    private final HistoryWindowFactory historyWindowFactory = new TextAreaHistoryWindowFactory();
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @FXML
     private void handleNumber(javafx.event.ActionEvent event) {
@@ -69,14 +84,15 @@ public class HelloController {
 
         try {
             double result = evaluateExpression(expression);
-
-            if (result == (int) result) {
-                display.setText(String.valueOf((int) result));
-            } else {
-                // Округляем до 10 знаков после запятой для красоты
-                String resultStr = String.format("%.10f", result).replaceAll("0*$", "").replaceAll("\\.$", "");
-                display.setText(resultStr);
-            }
+            String resultText = formatResult(result);
+            display.setText(resultText);
+            historyRepository.append(
+                    new HistoryEntry(
+                            LocalDateTime.now().format(dateTimeFormatter),
+                            expression,
+                            resultText
+                    )
+            );
 
             startNewExpression = true;
         } catch (Exception e) {
@@ -176,6 +192,24 @@ public class HelloController {
         }
     }
 
+    @FXML
+    private void handleShowHistory() {
+        try {
+            historyWindowFactory.createWindow(historyRepository.readAll()).show();
+        } catch (Exception e) {
+            showHistoryError("Не удалось открыть историю");
+        }
+    }
+
+    @FXML
+    private void handleClearHistory() {
+        try {
+            historyRepository.clear();
+        } catch (Exception e) {
+            showHistoryError("Не удалось очистить историю");
+        }
+    }
+
     // Метод для вычисления выражения
     private double evaluateExpression(String expression) {
         expression = expression.replaceAll("\\s+", "");
@@ -235,16 +269,25 @@ public class HelloController {
     }
 
     private double applyOperation(char operator, double b, double a) {
-        return switch (operator) {
-            case '+' -> a + b;
-            case '-' -> a - b;
-            case '*' -> a * b;
-            case '/' -> {
-                if (b == 0) throw new ArithmeticException("Деление на ноль");
-                yield a / b;
-            }
-            default -> 0;
-        };
+        return OperationFactoryResolver
+                .getFactory(operator)
+                .createOperation()
+                .execute(a, b);
+    }
+
+    private String formatResult(double result) {
+        if (result == (int) result) {
+            return String.valueOf((int) result);
+        }
+        return String.format("%.10f", result).replaceAll("0*$", "").replaceAll("\\.$", "");
+    }
+
+    private void showHistoryError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Ошибка");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private String getLastNumber(String expression) {
