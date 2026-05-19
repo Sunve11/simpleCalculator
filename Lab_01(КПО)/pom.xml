@@ -12,7 +12,6 @@
 
     <modules>
         <module>simpleCalculator</module>
-        <module>SimpleCalculatorMVVM</module>
     </modules>
 
     <properties>

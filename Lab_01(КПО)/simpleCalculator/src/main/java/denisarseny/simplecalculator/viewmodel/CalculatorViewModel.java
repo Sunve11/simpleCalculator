@@ -3,8 +3,8 @@ package denisarseny.simplecalculator.viewmodel;
 import denisarseny.simplecalculator.history.HistoryEntry;
 import denisarseny.simplecalculator.history.HistoryRepository;
 import denisarseny.simplecalculator.history.HistoryWindowFactory;
-import denisarseny.simplecalculator.history.JsonHistoryRepository;
 import denisarseny.simplecalculator.history.TextAreaHistoryWindowFactory;
+import denisarseny.simplecalculator.history.decorator.HistoryRepositoryDecorators;
 import denisarseny.simplecalculator.model.ExpressionEvaluator;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -16,21 +16,26 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * ViewModel: состояние экрана; действия вызываются через паттерн Command.
+ * ViewModel: состояние экрана; Command — действия; Decorator — {@link HistoryRepository}.
  * Factory Method остаётся в {@link ExpressionEvaluator}.
  */
 public class CalculatorViewModel {
 
     private final StringProperty display = new SimpleStringProperty("");
     private final ExpressionEvaluator evaluator = new ExpressionEvaluator();
-    private final HistoryRepository historyRepository = new JsonHistoryRepository();
+    private final HistoryRepository historyRepository;
     private final HistoryWindowFactory historyWindowFactory = new TextAreaHistoryWindowFactory();
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final Consumer<String> historyErrorSink;
     private boolean startNewExpression = true;
 
     public CalculatorViewModel(Consumer<String> historyErrorSink) {
+        this(historyErrorSink, HistoryRepositoryDecorators.createDefault());
+    }
+
+    public CalculatorViewModel(Consumer<String> historyErrorSink, HistoryRepository historyRepository) {
         this.historyErrorSink = historyErrorSink;
+        this.historyRepository = historyRepository;
     }
 
     public StringProperty displayProperty() {

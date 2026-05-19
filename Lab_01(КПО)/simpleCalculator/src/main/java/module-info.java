@@ -1,4 +1,5 @@
 module denisarseny.simplecalculator {
+    requires java.logging;
     requires javafx.graphics;
     requires javafx.controls;
     requires javafx.fxml;
@@ -18,4 +19,5 @@ module denisarseny.simplecalculator {
     exports denisarseny.simplecalculator.viewmodel;
     exports denisarseny.simplecalculator.model;
     exports denisarseny.simplecalculator.command;
+    exports denisarseny.simplecalculator.history.decorator;
 }

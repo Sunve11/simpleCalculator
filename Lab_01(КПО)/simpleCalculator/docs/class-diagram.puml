@@ -1,0 +1,336 @@
+@startuml simple-calculator-class-diagram
+' Лабораторная работа №04 — поведенческий паттерн Command
+' Калькулятор simpleCalculator (JavaFX + MVVM)
+'
+' Просмотр: PlantUML extension в IDE, https://www.plantuml.com/plantuml, или: plantuml docs/class-diagram.puml
+
+title Диаграмма классов — Simple Calculator\n(паттерн Command, Factory Method, MVVM)
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F9A825
+
+' ─── View (Client) ───────────────────────────────────────────────────────────
+
+package "view" #E3F2FD {
+  class HelloController <<Client>> {
+    - display: TextField
+    - viewModel: CalculatorViewModel
+    - commandInvoker: CommandInvoker
+    - commandFactory: CalculatorCommandFactory
+    --
+    + initialize()
+    + handleNumber(event)
+    + handleOperation(event)
+    + handleEquals()
+    + handleClear()
+    + handleUndo()
+    + handleRedo()
+    + handleShowHistory()
+    + handleClearHistory()
+  }
+}
+
+note right of HelloController
+  **Client** — инициирует команды,
+  не знает деталей их выполнения.
+  Создаёт команду через фабрику
+  и передаёт в Invoker.
+end note
+
+' ─── Command (поведенческий паттерн) ─────────────────────────────────────────
+
+package "command\n<<Command>>" #E8F5E9 {
+
+  interface CalculatorCommand <<Command>> {
+    + {abstract} execute()
+    + {abstract} undo()
+    + {abstract} redo()
+  }
+
+  abstract class AbstractCalculatorCommand {
+    # viewModel: CalculatorViewModel
+    - before: CalculatorSnapshot
+    - executed: boolean
+    --
+    + execute()
+    + undo()
+    + redo()
+    # {abstract} doExecute()
+  }
+
+  class CommandInvoker <<Invoker>> {
+    - undoStack: Deque<CalculatorCommand>
+    - redoStack: Deque<CalculatorCommand>
+    --
+    + execute(command: CalculatorCommand)
+    + undo()
+    + redo()
+    + canUndo(): boolean
+    + canRedo(): boolean
+  }
+
+  class CalculatorCommandFactory {
+    - viewModel: CalculatorViewModel
+    --
+    + appendDigit(digit): CalculatorCommand
+    + appendOperator(op): CalculatorCommand
+    + equals(): CalculatorCommand
+    + clearDisplay(): CalculatorCommand
+    + dot(): CalculatorCommand
+    + sign(): CalculatorCommand
+    + openBracket(): CalculatorCommand
+    + closeBracket(): CalculatorCommand
+    + showHistory(): CalculatorCommand
+    + clearHistory(): CalculatorCommand
+  }
+
+  together {
+    class AppendDigitCommand {
+      - digit: String
+      # doExecute()
+    }
+    class AppendOperatorCommand {
+      - operator: String
+      # doExecute()
+    }
+    class EqualsCommand {
+      - historyEntryAdded: boolean
+      # doExecute()
+      + undo()
+    }
+    class ClearDisplayCommand {
+      # doExecute()
+    }
+    class DotCommand
+    class SignCommand
+    class OpenBracketCommand
+    class CloseBracketCommand
+  }
+
+  class ShowHistoryCommand {
+    - viewModel: CalculatorViewModel
+    + execute()
+    + undo()
+    + redo()
+  }
+
+  class ClearHistoryCommand {
+    - viewModel: CalculatorViewModel
+    - backup: List<HistoryEntry>
+    + execute()
+    + undo()
+    + redo()
+  }
+}
+
+note bottom of CalculatorCommand
+  **Command** — инкапсулирует запрос
+  (нажатие кнопки) как объект.
+  Поддерживает execute / undo / redo.
+end note
+
+note bottom of CommandInvoker
+  **Invoker** — хранит стеки отмены
+  и повтора, вызывает команду.
+  ShowHistoryCommand не попадает в undo-стек.
+end note
+
+note bottom of AbstractCalculatorCommand
+  Перед первым execute() сохраняет
+  **CalculatorSnapshot** для отката экрана.
+end note
+
+' ─── ViewModel (Receiver) ────────────────────────────────────────────────────
+
+package "viewmodel" #FFF3E0 {
+  class CalculatorViewModel <<Receiver>> {
+    - display: StringProperty
+    - evaluator: ExpressionEvaluator
+    - historyRepository: HistoryRepository
+    - startNewExpression: boolean
+    --
+    + displayProperty(): StringProperty
+    + captureState(): CalculatorSnapshot
+    + restoreState(snapshot)
+    + appendDigit(digit)
+    + appendOperator(operator)
+    + equalsPressed()
+    + clear()
+    + dotPressed()
+    + signPressed()
+    + openBracketPressed()
+    + closeBracketPressed()
+    + showHistory()
+    + clearHistory()
+    + removeLastHistoryEntry()
+    + readHistory(): List<HistoryEntry>
+    + restoreHistory(entries)
+  }
+
+  class CalculatorSnapshot <<record>> {
+    + display: String
+    + startNewExpression: boolean
+  }
+}
+
+note right of CalculatorViewModel
+  **Receiver** — объект, над которым
+  выполняется действие команды.
+  Содержит бизнес-логику ввода и «=».
+end note
+
+' ─── Model + Factory Method ──────────────────────────────────────────────────
+
+package "model" #F3E5F5 {
+  class ExpressionEvaluator {
+    + evaluate(expression): double
+    + formatResult(value): String
+    + isOperator(ch): boolean
+    + getLastNumber(text): String
+    - applyOperation(op, b, a): double
+  }
+}
+
+package "factory\n<<Factory Method>>" #FCE4EC {
+  abstract class OperationFactory {
+    + {abstract} createOperation(): BinaryOperation
+  }
+  class OperationFactoryResolver {
+    + {static} resolve(operator): OperationFactory
+  }
+  class AdditionFactory
+  class SubtractionFactory
+  class MultiplicationFactory
+  class DivisionFactory
+}
+
+package "operation" #FCE4EC {
+  interface BinaryOperation {
+    + execute(a, b): double
+  }
+  class AdditionOperation
+  class SubtractionOperation
+  class MultiplicationOperation
+  class DivisionOperation
+}
+
+note bottom of OperationFactory
+  **Factory Method** (порождающий паттерн) —
+  создание операций +−×÷ при вычислении
+  выражения в ExpressionEvaluator.
+end note
+
+' ─── History ─────────────────────────────────────────────────────────────────
+
+package "history" #ECEFF1 {
+  interface HistoryRepository {
+    + append(entry)
+    + readAll(): List<HistoryEntry>
+    + clear()
+    + removeLast()
+    + replaceAll(entries)
+  }
+  class JsonHistoryRepository
+  class HistoryEntry {
+    + timestamp: String
+    + expression: String
+    + result: String
+  }
+  interface HistoryWindowFactory {
+    + createWindow(entries): Stage
+  }
+  class TextAreaHistoryWindowFactory
+}
+
+package "history.decorator\n<<Decorator>>" #E0F2F1 {
+  abstract class HistoryRepositoryDecorator {
+    # wrappee: HistoryRepository
+  }
+  class LoggingHistoryRepositoryDecorator
+  class CachingHistoryRepositoryDecorator
+  class HistoryRepositoryDecorators {
+    + {static} createDefault(): HistoryRepository
+  }
+}
+
+HistoryRepository <|.. HistoryRepositoryDecorator
+HistoryRepositoryDecorator <|-- LoggingHistoryRepositoryDecorator
+HistoryRepositoryDecorator <|-- CachingHistoryRepositoryDecorator
+JsonHistoryRepository ..|> HistoryRepository
+HistoryRepositoryDecorators ..> LoggingHistoryRepositoryDecorator : собирает цепочку
+LoggingHistoryRepositoryDecorator --> CachingHistoryRepositoryDecorator
+CachingHistoryRepositoryDecorator --> JsonHistoryRepository
+
+note bottom of HistoryRepositoryDecorator
+  **Decorator** (лаба №5) —
+  Logging → Caching → JsonHistoryRepository
+end note
+
+' ─── Наследование Command ────────────────────────────────────────────────────
+
+CalculatorCommand <|.. AbstractCalculatorCommand
+CalculatorCommand <|.. ShowHistoryCommand
+CalculatorCommand <|.. ClearHistoryCommand
+
+AbstractCalculatorCommand <|-- AppendDigitCommand
+AbstractCalculatorCommand <|-- AppendOperatorCommand
+AbstractCalculatorCommand <|-- EqualsCommand
+AbstractCalculatorCommand <|-- ClearDisplayCommand
+AbstractCalculatorCommand <|-- DotCommand
+AbstractCalculatorCommand <|-- SignCommand
+AbstractCalculatorCommand <|-- OpenBracketCommand
+AbstractCalculatorCommand <|-- CloseBracketCommand
+
+' ─── Связи Command / MVVM ────────────────────────────────────────────────────
+
+HelloController --> CalculatorViewModel : использует
+HelloController --> CommandInvoker : execute / undo / redo
+HelloController --> CalculatorCommandFactory : создаёт команды
+
+CommandInvoker o--> "0..*" CalculatorCommand : undoStack\nredoStack
+CalculatorCommandFactory ..> CalculatorCommand : <<create>>
+
+AbstractCalculatorCommand --> CalculatorViewModel : receiver
+ShowHistoryCommand --> CalculatorViewModel
+ClearHistoryCommand --> CalculatorViewModel
+AbstractCalculatorCommand ..> CalculatorSnapshot : сохраняет before
+
+CalculatorViewModel --> ExpressionEvaluator
+CalculatorViewModel --> HistoryRepository
+CalculatorViewModel ..> HistoryWindowFactory
+CalculatorViewModel ..> CalculatorSnapshot : capture / restore
+
+TextAreaHistoryWindowFactory ..|> HistoryWindowFactory
+CalculatorViewModel ..> HistoryRepositoryDecorators : createDefault()
+ClearHistoryCommand ..> HistoryEntry
+
+' ─── Factory Method ──────────────────────────────────────────────────────────
+
+ExpressionEvaluator --> OperationFactoryResolver
+OperationFactoryResolver ..> OperationFactory
+OperationFactory <|-- AdditionFactory
+OperationFactory <|-- SubtractionFactory
+OperationFactory <|-- MultiplicationFactory
+OperationFactory <|-- DivisionFactory
+OperationFactory ..> BinaryOperation : createOperation()
+BinaryOperation <|.. AdditionOperation
+BinaryOperation <|.. SubtractionOperation
+BinaryOperation <|.. MultiplicationOperation
+BinaryOperation <|.. DivisionOperation
+
+' ─── Легенда ролей паттерна Command ──────────────────────────────────────────
+
+legend right
+  |= Роль (GoF) |= Класс в проекте |
+  | Client | HelloController |
+  | Invoker | CommandInvoker |
+  | Command | CalculatorCommand |
+  | ConcreteCommand | AppendDigitCommand, EqualsCommand, … |
+  | Receiver | CalculatorViewModel |
+  | — | CalculatorCommandFactory (вспомогательная фабрика команд) |
+endlegend
+
+@enduml
