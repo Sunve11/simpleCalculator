@@ -8,4 +8,8 @@ public interface HistoryRepository {
     List<HistoryEntry> readAll();
 
     void clear();
+
+    void removeLast();
+
+    void replaceAll(List<HistoryEntry> entries);
 }

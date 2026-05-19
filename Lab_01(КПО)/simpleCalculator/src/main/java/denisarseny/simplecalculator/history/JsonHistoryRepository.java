@@ -47,6 +47,20 @@ public class JsonHistoryRepository implements HistoryRepository {
         writeAll(new ArrayList<>());
     }
 
+    @Override
+    public synchronized void removeLast() {
+        List<HistoryEntry> entries = readAll();
+        if (!entries.isEmpty()) {
+            entries.remove(entries.size() - 1);
+            writeAll(entries);
+        }
+    }
+
+    @Override
+    public synchronized void replaceAll(List<HistoryEntry> entries) {
+        writeAll(new ArrayList<>(entries));
+    }
+
     private void writeAll(List<HistoryEntry> entries) {
         ensureFile();
         String json = toJson(entries);

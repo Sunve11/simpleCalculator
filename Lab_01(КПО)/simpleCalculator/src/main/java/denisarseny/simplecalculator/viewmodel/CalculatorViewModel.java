@@ -1,18 +1,65 @@
-package denisarseny.simplecalculatormvvm.viewmodel;
+package denisarseny.simplecalculator.viewmodel;
 
-import denisarseny.simplecalculatormvvm.model.ExpressionEvaluator;
+import denisarseny.simplecalculator.history.HistoryEntry;
+import denisarseny.simplecalculator.history.HistoryRepository;
+import denisarseny.simplecalculator.history.HistoryWindowFactory;
+import denisarseny.simplecalculator.history.JsonHistoryRepository;
+import denisarseny.simplecalculator.history.TextAreaHistoryWindowFactory;
+import denisarseny.simplecalculator.model.ExpressionEvaluator;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-/** ViewModel: состояние и команды; не зависит от FXML и узлов сцены. */
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+/**
+ * ViewModel: состояние экрана; действия вызываются через паттерн Command.
+ * Factory Method остаётся в {@link ExpressionEvaluator}.
+ */
 public class CalculatorViewModel {
 
     private final StringProperty display = new SimpleStringProperty("");
     private final ExpressionEvaluator evaluator = new ExpressionEvaluator();
+    private final HistoryRepository historyRepository = new JsonHistoryRepository();
+    private final HistoryWindowFactory historyWindowFactory = new TextAreaHistoryWindowFactory();
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final Consumer<String> historyErrorSink;
     private boolean startNewExpression = true;
+
+    public CalculatorViewModel(Consumer<String> historyErrorSink) {
+        this.historyErrorSink = historyErrorSink;
+    }
 
     public StringProperty displayProperty() {
         return display;
+    }
+
+    public CalculatorSnapshot captureState() {
+        return new CalculatorSnapshot(display.get(), startNewExpression);
+    }
+
+    public void restoreState(CalculatorSnapshot snapshot) {
+        display.set(snapshot.display());
+        startNewExpression = snapshot.startNewExpression();
+    }
+
+    public String getDisplayValue() {
+        return display.get();
+    }
+
+    public void removeLastHistoryEntry() {
+        historyRepository.removeLast();
+    }
+
+    public List<HistoryEntry> readHistory() {
+        return new ArrayList<>(historyRepository.readAll());
+    }
+
+    public void restoreHistory(List<HistoryEntry> entries) {
+        historyRepository.replaceAll(entries);
     }
 
     public void appendDigit(String digit) {
@@ -50,7 +97,15 @@ public class CalculatorViewModel {
         String expression = display.get();
         try {
             double result = evaluator.evaluate(expression);
-            display.set(evaluator.formatResult(result));
+            String resultText = evaluator.formatResult(result);
+            display.set(resultText);
+            historyRepository.append(
+                    new HistoryEntry(
+                            LocalDateTime.now().format(dateTimeFormatter),
+                            expression,
+                            resultText
+                    )
+            );
             startNewExpression = true;
         } catch (Exception e) {
             display.set("Ошибка");
@@ -132,6 +187,22 @@ public class CalculatorViewModel {
         if (openCount > closeCount) {
             display.set(currentText + ")");
             startNewExpression = false;
+        }
+    }
+
+    public void showHistory() {
+        try {
+            historyWindowFactory.createWindow(historyRepository.readAll()).show();
+        } catch (Exception e) {
+            historyErrorSink.accept("Не удалось открыть историю");
+        }
+    }
+
+    public void clearHistory() {
+        try {
+            historyRepository.clear();
+        } catch (Exception e) {
+            historyErrorSink.accept("Не удалось очистить историю");
         }
     }
 }

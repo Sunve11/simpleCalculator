@@ -1,8 +1,12 @@
-package denisarseny.simplecalculatormvvm.model;
+package denisarseny.simplecalculator.model;
+
+import denisarseny.simplecalculator.factory.OperationFactoryResolver;
 
 import java.util.Stack;
 
-/** Модель: вычисление выражения без UI. */
+/**
+ * Модель: разбор выражения и применение операций через Factory Method.
+ */
 public final class ExpressionEvaluator {
 
     public double evaluate(String expression) {
@@ -56,6 +60,10 @@ public final class ExpressionEvaluator {
         return String.format("%.10f", result).replaceAll("0*$", "").replaceAll("\\.$", "");
     }
 
+    public boolean isOperator(char ch) {
+        return ch == '+' || ch == '-' || ch == '*' || ch == '/';
+    }
+
     public String getLastNumber(String expression) {
         StringBuilder lastNumber = new StringBuilder();
         boolean foundNumber = false;
@@ -86,10 +94,6 @@ public final class ExpressionEvaluator {
         return lastNumber.toString();
     }
 
-    public boolean isOperator(char ch) {
-        return ch == '+' || ch == '-' || ch == '*' || ch == '/';
-    }
-
     private boolean hasPrecedence(char op1, char op2) {
         if (op2 == '(' || op2 == ')') {
             return false;
@@ -98,17 +102,9 @@ public final class ExpressionEvaluator {
     }
 
     private double applyOperation(char operator, double b, double a) {
-        return switch (operator) {
-            case '+' -> a + b;
-            case '-' -> a - b;
-            case '*' -> a * b;
-            case '/' -> {
-                if (b == 0) {
-                    throw new ArithmeticException("Деление на ноль");
-                }
-                yield a / b;
-            }
-            default -> throw new IllegalArgumentException("Неизвестный оператор: " + operator);
-        };
+        return OperationFactoryResolver
+                .getFactory(operator)
+                .createOperation()
+                .execute(a, b);
     }
 }

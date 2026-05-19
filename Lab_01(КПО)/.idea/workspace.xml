@@ -4,7 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3124fc75-3e85-40ee-9afc-7de947873a8b" name="Changes" comment="" />
+    <list default="true" id="3124fc75-3e85-40ee-9afc-7de947873a8b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/java/denisarseny/simplecalculatormvvm/MvvmCalculatorApp.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/java/denisarseny/simplecalculatormvvm/MvvmLauncher.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/java/denisarseny/simplecalculatormvvm/model/ExpressionEvaluator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/java/denisarseny/simplecalculatormvvm/view/MainViewController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/java/denisarseny/simplecalculatormvvm/viewmodel/CalculatorViewModel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/java/module-info.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleCalculatorMVVM/src/main/resources/denisarseny/simplecalculatormvvm/main-view.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/src/main/java/denisarseny/simplecalculator/HelloController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/src/main/java/denisarseny/simplecalculator/history/HistoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/simpleCalculator/src/main/java/denisarseny/simplecalculator/history/HistoryRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/src/main/java/denisarseny/simplecalculator/history/JsonHistoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/simpleCalculator/src/main/java/denisarseny/simplecalculator/history/JsonHistoryRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/simpleCalculator/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simpleCalculator/src/main/resources/denisarseny/simplecalculator/hello-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/simpleCalculator/src/main/resources/denisarseny/simplecalculator/hello-view.fxml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,21 +32,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Sunve11"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Sunve11&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Sunve11/simpleCalculator.git",
-    "accountId": "c4538c02-6ff7-4f97-972b-81180bfdfc26"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Sunve11/simpleCalculator.git&quot;,
+    &quot;accountId&quot;: &quot;c4538c02-6ff7-4f97-972b-81180bfdfc26&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 7
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="3CgB5FTvR6xaHsHlGUj1HKeosgK" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -40,12 +59,27 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/КПО/Lab_01(КПО)",
     "settings.editor.selected.configurable": "configurable.group.appearance"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="Lab_01(КПО)" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="Lab_01(КПО)" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="3124fc75-3e85-40ee-9afc-7de947873a8b" name="Changes" comment="" />
@@ -62,6 +96,11 @@
         <entry key="MAIN">
           <value>
             <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
               <option name="SHOW_ROOT_NAMES" value="true" />
             </State>
           </value>

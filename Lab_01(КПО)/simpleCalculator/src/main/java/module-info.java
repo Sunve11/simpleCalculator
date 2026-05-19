@@ -11,6 +11,11 @@ module denisarseny.simplecalculator {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
 
-    opens denisarseny.simplecalculator to javafx.fxml;
+    opens denisarseny.simplecalculator.view to javafx.fxml;
+
     exports denisarseny.simplecalculator;
+    exports denisarseny.simplecalculator.view;
+    exports denisarseny.simplecalculator.viewmodel;
+    exports denisarseny.simplecalculator.model;
+    exports denisarseny.simplecalculator.command;
 }
