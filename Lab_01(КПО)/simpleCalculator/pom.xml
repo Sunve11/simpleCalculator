@@ -27,6 +27,11 @@
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>21.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>21.0.6</version>
         </dependency>
@@ -65,6 +70,11 @@
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
             <version>12.3.1</version>
         </dependency>
         <dependency>
@@ -120,6 +130,7 @@
                             <noHeaderFiles>true</noHeaderFiles>
                             <options>
                                 <option>--enable-native-access=javafx.graphics</option>
+                                <option>--enable-native-access=javafx.media</option>
                             </options>
                         </configuration>
                     </execution>
