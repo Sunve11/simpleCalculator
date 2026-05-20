@@ -1,31 +1,94 @@
 @startuml simple-calculator-class-diagram
-' Simple Calculator — компактная диаграмма классов
-' Command, Decorator, Factory Method, MVVM
+' =============================================================================
+' Диаграмма классов — Simple Calculator (JavaFX)
+' Лабы: MVVM, Factory Method, Command, Decorator, Ресурсы
+' Файл: simpleCalculator/docs/class-diagram.puml
+' =============================================================================
 
 top to bottom direction
 
-title Диаграмма классов — Simple Calculator\n(Command + Decorator + Factory Method + MVVM)
+title Диаграмма классов — Simple Calculator\n(MVVM, Command, Decorator, Factory Method, Resources)
 
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 skinparam nodesep 35
-skinparam ranksep 30
+skinparam ranksep 28
 skinparam noteBackgroundColor #FFFDE7
 skinparam noteBorderColor #F9A825
 
+' ─── Запуск ───────────────────────────────────────────────────────────────────
+
 package "app" #ECEFF1 {
-  class Launcher
-  class Calculator
+  class Launcher {
+    + main(args)
+  }
+  class Calculator <<Application>> {
+    + start(stage)
+    + stop()
+  }
 }
+
+' ─── Ресурсы (лаба «Ресурсы») ───────────────────────────────────────────────
+
+package "resources" #FFF8E1 {
+  class AppResources <<Singleton>> {
+    - bundle: ResourceBundle
+    - dynamicMedia: List
+    - dynamicImages: List
+    --
+    + getString(key)
+    + getStaticImage(path): Image
+    + loadImage(path): Image
+    + loadAppFont(size): Font
+    + loadCursor(path): Cursor
+    + loadMedia(path): Media
+    + initClickSound()
+    + playClickSound()
+    + dispose()
+  }
+  class ResourceIcons {
+    + {static} icon(glyph, size)
+    + {static} setGraphic(button, glyph)
+  }
+  class "messages.properties\nmessages_ru.properties" as MessagesBundle <<resource file>>
+  class "icons/, images/\nfonts/, media/, cursors/" as AssetFiles <<resource files>>
+}
+
+note bottom of AppResources
+  **Ресурсы приложения**
+  • **Статическая** загрузка: ResourceBundle,
+    getStaticImage(), Ikonli, CSS
+  • **Динамическая**: loadFont, loadImage,
+    loadCursor, Media; освобождение — dispose()
+end note
+
+' ─── View ───────────────────────────────────────────────────────────────────
 
 package "view <<MVVM>>" #E3F2FD {
   class HelloController <<Client>> {
+    - menuBar: MenuBar
     - viewModel: CalculatorViewModel
     - commandInvoker: CommandInvoker
     - commandFactory: CalculatorCommandFactory
+    --
+    + applyResources()
+    + buildMenu()
+    handleNumber() / handleEquals()
+    handleUndo() / handleRedo()
+  }
+  class AboutDialog {
+    - owner: Stage
   }
 }
+
+note bottom of HelloController
+  **View (MVVM)** + **Client (Command)**
+  Меню, иконки Ikonli, звук, курсор HAND,
+  анимация логотипа, диалог «О программе»
+end note
+
+' ─── Command ────────────────────────────────────────────────────────────────
 
 package "command <<Command>>" #E8F5E9 {
   interface CalculatorCommand {
@@ -36,8 +99,10 @@ package "command <<Command>>" #E8F5E9 {
   abstract class AbstractCalculatorCommand
   class ShowHistoryCommand
   class ClearHistoryCommand
-  class "AppendDigit, Equals,\nClear, Dot, …" as ConcreteCommands
+  class "AppendDigit, Equals, Clear, …" as ConcreteCommands
 }
+
+' ─── ViewModel ──────────────────────────────────────────────────────────────
 
 package "viewmodel" #FFF3E0 {
   class CalculatorViewModel <<Receiver>> {
@@ -47,13 +112,17 @@ package "viewmodel" #FFF3E0 {
   class CalculatorSnapshot <<record>>
 }
 
+' ─── Model + Factory Method ─────────────────────────────────────────────────
+
 package "model + factory" #F3E5F5 {
   class ExpressionEvaluator
   abstract class OperationFactory
   class OperationFactoryResolver
   interface BinaryOperation
-  class "AdditionOperation\nSubtractionOperation\nMultiplicationOperation\nDivisionOperation" as Operations
+  class "Addition / Subtraction\nMultiplication / Division" as Operations
 }
+
+' ─── History + Decorator ──────────────────────────────────────────────────────
 
 package "history" #ECEFF1 {
   interface HistoryRepository <<Component>>
@@ -70,31 +139,24 @@ package "history.decorator <<Decorator>>" #E0F2F1 {
   class HistoryRepositoryDecorators
 }
 
-note bottom of HelloController
-  **View** + **Client**: FXML, команды → Invoker
-end note
-
-note bottom of ConcreteCommands
-  **ConcreteCommand** — по одной на действие кнопки
+note bottom of HistoryRepositoryDecorators
+  **Decorator (лаба 5)**
+  Logging → Caching → JsonHistoryRepository
 end note
 
 note bottom of OperationFactory
-  **Factory Method** — + − × ÷
+  **Factory Method (лаба 3)** — операции + − × ÷
 end note
 
-note bottom of HistoryRepositoryDecorators
-  **Decorator**: Logging → Caching → Json
-  ViewModel → интерфейс HistoryRepository
-end note
+' ─── Наследование ───────────────────────────────────────────────────────────
 
 CalculatorCommand <|.. AbstractCalculatorCommand
 CalculatorCommand <|.. ShowHistoryCommand
 CalculatorCommand <|.. ClearHistoryCommand
 AbstractCalculatorCommand <|-- ConcreteCommands
 
-OperationFactory ..> BinaryOperation : create
+OperationFactory ..> BinaryOperation
 BinaryOperation <|.. Operations
-ExpressionEvaluator --> OperationFactoryResolver
 
 HistoryRepository <|.. HistoryRepositoryDecorator
 HistoryRepository <|.. JsonHistoryRepository
@@ -102,8 +164,18 @@ HistoryRepositoryDecorator <|-- LoggingHistoryRepositoryDecorator
 HistoryRepositoryDecorator <|-- CachingHistoryRepositoryDecorator
 HistoryWindowFactory <|-- TextAreaHistoryWindowFactory
 
+' ─── Связи ───────────────────────────────────────────────────────────────────
+
 Launcher ..> Calculator
-Calculator --> HelloController
+Calculator --> HelloController : FXML
+Calculator ..> AppResources : initClickSound()\ndispose()
+
+AppResources ..> MessagesBundle : getBundle()
+AppResources ..> AssetFiles : getResource()\nloadFont / loadImage
+HelloController ..> AppResources : applyResources()
+HelloController ..> ResourceIcons : иконки меню/кнопок
+HelloController ..> AboutDialog : show()
+AboutDialog ..> AppResources
 
 HelloController --> CalculatorViewModel
 HelloController --> CommandInvoker
@@ -123,12 +195,18 @@ HistoryRepositoryDecorators ..> LoggingHistoryRepositoryDecorator
 LoggingHistoryRepositoryDecorator --> CachingHistoryRepositoryDecorator
 CachingHistoryRepositoryDecorator --> JsonHistoryRepository
 
+ExpressionEvaluator --> OperationFactoryResolver
+
+' ─── Легенда ─────────────────────────────────────────────────────────────────
+
 legend bottom
-  |= Паттерн |= Классы |
+  |= Паттерн / тема |= Классы |
   | MVVM | HelloController, CalculatorViewModel |
   | Command | CalculatorCommand, CommandInvoker, *Command |
-  | Factory Method | OperationFactory, BinaryOperation, Operations |
-  | Decorator | HistoryRepositoryDecorator, Logging*, Caching*, Json* |
+  | Decorator | HistoryRepositoryDecorator, Logging*, Caching* |
+  | Factory Method | OperationFactory, BinaryOperation |
+  | Ресурсы | AppResources, ResourceIcons, messages.properties, assets/ |
+  | Диалог | AboutDialog |
 endlegend
 
 @enduml

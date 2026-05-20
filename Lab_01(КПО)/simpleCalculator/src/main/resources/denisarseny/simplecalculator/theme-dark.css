@@ -1,0 +1,29 @@
+/* Вариант 1: затемнённый стиль (слабовидящие — контрастный тёмный фон) */
+.theme-dark.calculator-root {
+    -fx-background-color: linear-gradient(to bottom, #0d1117, #161b22);
+}
+
+.theme-dark .label.calculator-title {
+    -fx-text-fill: #c9d1d9;
+}
+
+.theme-dark .text-field.calculator-display {
+    -fx-background-color: #21262d;
+    -fx-border-color: #58a6ff;
+    -fx-border-width: 2;
+    -fx-text-fill: #f0f6fc;
+}
+
+.theme-dark .button.calc-btn-digit {
+    -fx-background-color: #30363d;
+    -fx-text-fill: #f0f6fc;
+}
+
+.theme-dark .button.calc-btn-op {
+    -fx-background-color: #1f6feb;
+}
+
+.theme-dark .button.calc-btn-util {
+    -fx-background-color: #30363d;
+    -fx-text-fill: #f0f6fc;
+}

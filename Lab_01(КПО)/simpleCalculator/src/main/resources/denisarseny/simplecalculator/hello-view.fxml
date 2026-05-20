@@ -36,8 +36,6 @@
                 text="Повтор"/>
         <Button fx:id="buttonShowHistory" mnemonicParsing="false" onAction="#handleShowHistory"
                 styleClass="calc-btn-util" text="История"/>
-        <Button fx:id="buttonClearHistory" mnemonicParsing="false" onAction="#handleClearHistory"
-                styleClass="calc-btn-util" text="Журнал"/>
     </HBox>
 
     <GridPane fx:id="keypad" hgap="10.0" styleClass="keypad" vgap="10.0">

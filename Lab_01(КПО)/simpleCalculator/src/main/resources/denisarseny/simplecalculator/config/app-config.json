@@ -1,0 +1,32 @@
+{
+  "window": {
+    "width": 380,
+    "height": 640,
+    "minWidth": 320,
+    "minHeight": 540
+  },
+  "theme": "dark",
+  "accessibility": {
+    "variant": 1,
+    "highContrast": false,
+    "largeFonts": false,
+    "largeButtons": false
+  },
+  "font": {
+    "family": "Segoe UI",
+    "useResourceFont": true,
+    "resourcePath": "fonts/Roboto-Regular.ttf",
+    "displaySize": 28,
+    "titleSize": 13,
+    "buttonSize": 20
+  },
+  "sound": {
+    "enabled": true
+  },
+  "database": {
+    "enabled": false,
+    "jdbcUrl": "jdbc:sqlite:${user.home}/.simpleCalculator/calculator.db",
+    "username": "",
+    "password": ""
+  }
+}

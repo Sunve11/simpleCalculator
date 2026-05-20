@@ -1,0 +1,47 @@
+/* Вариант 1: светлый стиль (для слабовидящих — светлый фон, тёмный текст) */
+.theme-light.calculator-root {
+    -fx-background-color: linear-gradient(to bottom, #f0f4f8, #e2e8f0);
+}
+
+.theme-light .label.calculator-title {
+    -fx-text-fill: #1a202c;
+}
+
+.theme-light .text-field.calculator-display {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #2b6cb0;
+    -fx-border-width: 2;
+    -fx-text-fill: #1a202c;
+    -fx-prompt-text-fill: #718096;
+}
+
+.theme-light .button.calc-btn-digit {
+    -fx-background-color: #edf2f7;
+    -fx-text-fill: #1a202c;
+}
+
+.theme-light .button.calc-btn-digit:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+.theme-light .button.calc-btn-op {
+    -fx-background-color: #2b6cb0;
+    -fx-text-fill: white;
+}
+
+.theme-light .button.calc-btn-accent {
+    -fx-background-color: #dd6b20;
+}
+
+.theme-light .button.calc-btn-equals {
+    -fx-background-color: linear-gradient(to bottom right, #38a169, #2f855a);
+}
+
+.theme-light .button.calc-btn-clear {
+    -fx-background-color: #e53e3e;
+}
+
+.theme-light .button.calc-btn-util {
+    -fx-background-color: #cbd5e0;
+    -fx-text-fill: #1a202c;
+}

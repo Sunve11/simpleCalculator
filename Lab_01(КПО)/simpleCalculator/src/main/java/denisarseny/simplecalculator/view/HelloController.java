@@ -2,6 +2,9 @@ package denisarseny.simplecalculator.view;
 
 import denisarseny.simplecalculator.command.CalculatorCommandFactory;
 import denisarseny.simplecalculator.command.CommandInvoker;
+import denisarseny.simplecalculator.config.AppConfig;
+import denisarseny.simplecalculator.config.ConfigLoadResult;
+import denisarseny.simplecalculator.config.FontSettings;
 import denisarseny.simplecalculator.resources.AppResources;
 import denisarseny.simplecalculator.resources.ResourceIcons;
 import denisarseny.simplecalculator.viewmodel.CalculatorViewModel;
@@ -27,6 +30,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.nio.file.Path;
+
 /**
  * View: Command + загрузка ресурсов (меню, иконки, шрифты, звук, курсоры, анимация, видео).
  */
@@ -48,10 +55,9 @@ public class HelloController {
     private Button buttonRedo;
     @FXML
     private Button buttonShowHistory;
-    @FXML
-    private Button buttonClearHistory;
 
     private Stage stage;
+    private ConfigLoadResult configLoadResult;
     private CalculatorViewModel viewModel;
     private CommandInvoker commandInvoker;
     private CalculatorCommandFactory commandFactory;
@@ -72,22 +78,38 @@ public class HelloController {
         this.stage = stage;
     }
 
+    public void bindConfig(ConfigLoadResult configLoadResult) {
+        this.configLoadResult = configLoadResult;
+    }
+
+    /** Параметры из config.json (шрифты, звук). */
+    public void applyConfig(AppConfig config) {
+        AppResources res = AppResources.get();
+        FontSettings font = config.getFont();
+        titleLabel.setFont(res.loadAppFont(font.getTitleSize()));
+        display.setFont(res.loadAppFont(font.getDisplaySize()));
+        if (soundMenuItem != null) {
+            soundMenuItem.setSelected(config.getSound().isEnabled());
+        }
+        for (var node : keypad.getChildren()) {
+            if (node instanceof Button button) {
+                button.setStyle("-fx-font-size: " + font.getButtonSize() + "px;");
+            }
+        }
+    }
+
     /** Подключение ресурсов после загрузки FXML */
     public void applyResources() {
         AppResources res = AppResources.get();
 
         titleLabel.setText(res.getString("app.subtitle"));
-        titleLabel.setFont(res.loadAppFont(13));
 
         logoView.setImage(res.getStaticImage("/denisarseny/simplecalculator/images/logo.png"));
         startLogoAnimation();
 
-        display.setFont(res.loadAppFont(28));
-
         ResourceIcons.setGraphic(buttonUndo, FontAwesomeSolid.UNDO, 14);
         ResourceIcons.setGraphic(buttonRedo, FontAwesomeSolid.REDO, 14);
         ResourceIcons.setGraphic(buttonShowHistory, FontAwesomeSolid.CLOCK, 14);
-        ResourceIcons.setGraphic(buttonClearHistory, FontAwesomeSolid.TRASH, 14);
 
         Cursor handCursor = Cursor.HAND;
         keypad.setCursor(handCursor);
@@ -127,7 +149,11 @@ public class HelloController {
         ResourceIcons.setGraphic(videoItem, FontAwesomeSolid.PLAY_CIRCLE, 14);
         videoItem.setOnAction(e -> openIntroVideo());
 
-        helpMenu.getItems().addAll(aboutItem, videoItem);
+        MenuItem openConfigItem = new MenuItem("Открыть config.json");
+        ResourceIcons.setGraphic(openConfigItem, FontAwesomeSolid.FOLDER_OPEN, 14);
+        openConfigItem.setOnAction(e -> openConfigFile());
+
+        helpMenu.getItems().addAll(aboutItem, videoItem, openConfigItem);
 
         menuBar.getMenus().setAll(fileMenu, viewMenu, helpMenu);
         menuBar.setPadding(new Insets(0, 0, 4, 0));
@@ -227,11 +253,6 @@ public class HelloController {
     }
 
     @FXML
-    private void handleClearHistory() {
-        onButtonAction(() -> commandInvoker.execute(commandFactory.clearHistory()));
-    }
-
-    @FXML
     private void handleUndo() {
         onButtonAction(commandInvoker::undo);
     }
@@ -239,6 +260,23 @@ public class HelloController {
     @FXML
     private void handleRedo() {
         onButtonAction(commandInvoker::redo);
+    }
+
+    private void openConfigFile() {
+        if (configLoadResult == null || configLoadResult.configPath() == null) {
+            showHistoryError("Путь к config.json неизвестен");
+            return;
+        }
+        Path path = configLoadResult.configPath();
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(path.toFile());
+            } else {
+                showHistoryError("Файл конфигурации:\n" + path);
+            }
+        } catch (IOException e) {
+            showHistoryError("Не удалось открыть config.json:\n" + path);
+        }
     }
 
     private void showHistoryError(String message) {

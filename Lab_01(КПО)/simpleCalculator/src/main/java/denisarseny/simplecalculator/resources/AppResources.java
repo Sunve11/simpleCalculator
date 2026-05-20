@@ -1,5 +1,7 @@
 package denisarseny.simplecalculator.resources;
 
+import denisarseny.simplecalculator.config.AppConfig;
+import denisarseny.simplecalculator.config.FontSettings;
 import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.image.Image;
@@ -37,6 +39,9 @@ public final class AppResources {
     private Font appFont;
     private javafx.scene.media.AudioClip clickSound;
     private boolean soundEnabled = true;
+    private boolean useResourceFont = true;
+    private String fontResourcePath = "/denisarseny/simplecalculator/fonts/Roboto-Regular.ttf";
+    private String fallbackFontFamily = "Segoe UI";
 
     private AppResources() {
         bundle = ResourceBundle.getBundle(BUNDLE, Locale.getDefault());
@@ -57,6 +62,20 @@ public final class AppResources {
 
     public String format(String key, Object... args) {
         return MessageFormat.format(getString(key), args);
+    }
+
+    /** Применение параметров из config.json (шрифт, звук). */
+    public void applyConfig(AppConfig config) {
+        setSoundEnabled(config.getSound().isEnabled());
+        FontSettings font = config.getFont();
+        useResourceFont = font.isUseResourceFont();
+        fallbackFontFamily = font.getFamily() != null ? font.getFamily() : "Segoe UI";
+        String path = font.getResourcePath() != null ? font.getResourcePath() : "fonts/Roboto-Regular.ttf";
+        fontResourcePath = path.startsWith("/") ? path : "/denisarseny/simplecalculator/" + path;
+        appFont = null;
+        if (!useResourceFont) {
+            appFont = Font.font(fallbackFontFamily, 12);
+        }
     }
 
     /** Статическая картинка (кэш JavaFX Image по URL) */
@@ -92,14 +111,14 @@ public final class AppResources {
         if (appFont == null) {
             appFont = loadRobotoFromResources();
             if (appFont == null) {
-                appFont = Font.font("Segoe UI", 12);
+                appFont = Font.font(fallbackFontFamily, 12);
             }
         }
         return Font.font(appFont.getFamily(), size);
     }
 
     private Font loadRobotoFromResources() {
-        try (InputStream in = openStream("/denisarseny/simplecalculator/fonts/Roboto-Regular.ttf")) {
+        try (InputStream in = openStream(fontResourcePath)) {
             if (in == null) {
                 return null;
             }

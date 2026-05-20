@@ -1,0 +1,26 @@
+/* Дополнительно при highContrast / largeFonts / largeButtons из config.json */
+.accessibility-large-fonts .text-field.calculator-display {
+    -fx-font-size: 36px;
+}
+
+.accessibility-large-fonts .label.calculator-title {
+    -fx-font-size: 16px;
+}
+
+.accessibility-large-fonts .button.calc-btn {
+    -fx-font-size: 24px;
+}
+
+.accessibility-large-buttons .button.calc-btn {
+    -fx-min-height: 68;
+    -fx-min-width: 80;
+}
+
+.accessibility-high-contrast .text-field.calculator-display {
+    -fx-border-width: 3;
+}
+
+.accessibility-high-contrast .button.calc-btn {
+    -fx-border-color: #000000;
+    -fx-border-width: 2;
+}
